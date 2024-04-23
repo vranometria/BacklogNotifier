@@ -70,6 +70,20 @@ def create_message(assignee_key, ticket_key, project, content, status_name):
     
     return f'<@{slack_user}> <{ticket_url} | {ticket_key}>{prefix}' 
     
+def notice_to_slack(text):
+    slack_url = os.environ['WEBHOOK_URL']
+    username = os.environ['USER_NAME']
+    channel = os.environ['CHANNEL']
+    icon = os.environ['ICON']
+    
+    param = {
+        "channel": channel,
+        "username": username, 
+        "text": text,
+        "icon_emoji": icon
+    }
+    param = json.dumps(param)
+    response = requests.post(slack_url, param)
 
 
 # mainの時実行する
