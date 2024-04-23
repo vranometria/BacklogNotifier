@@ -51,8 +51,22 @@ def proc(project, content):
     if not assignee_key in  os.environ:
         raise "no registerd user_id(user_idXXXXX)"
     
+    status_name = content['status']['name']
+    ticket_key = f'{project["projectKey"]}-{content["key_id"]}'
+    
+    
+    dynamoDB = boto3.resource('dynamodb')
+    table= dynamoDB.Table('backlog-ready-call')
+    data = table.get_item(Key={'ticket_id': ticket_key})
+    
+    is_waiting = status_name == "処理待ち" or status_name == "指摘あり"
+    is_new_rec = not 'Item' in data
     text = create_message(assignee_key, ticket_key, project, content, status_name)
     
+    if is_new_rec and is_waiting: # 新規で処理待ちか指摘ありは、レコード作ってslack
+        put_item(table, ticket_key, status_name)
+        notice_to_slack(text)
+        return
  
 # Slackに通知するメッセージを作成する
 def create_message(assignee_key, ticket_key, project, content, status_name):
