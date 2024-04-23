@@ -50,6 +50,26 @@ def proc(project, content):
     assignee_key = f'user_id{assignee_id}'
     if not assignee_key in  os.environ:
         raise "no registerd user_id(user_idXXXXX)"
+    
+    text = create_message(assignee_key, ticket_key, project, content, status_name)
+    
+ 
+# Slackに通知するメッセージを作成する
+def create_message(assignee_key, ticket_key, project, content, status_name):
+    
+    slack_user = os.environ[assignee_key]
+    backlog_url = os.environ['BACKLOG_TICKET']
+    
+    ticket_url = backlog_url + ticket_key
+    
+    prefix = '未設定'
+    if status_name == '処理待ち':
+        prefix = "が処理待ちになりました"
+    elif status_name == '指摘あり':
+        prefix = "に指摘がありました"
+    
+    return f'<@{slack_user}> <{ticket_url} | {ticket_key}>{prefix}' 
+    
 
 
 # mainの時実行する
