@@ -10,6 +10,21 @@ def lambda_handler(event, context):
         }
     
     
+    project = body['project']
+    content = body['content']
+    error = ''
+    
+    try:
+        proc(project, content)
+    except Exception as e:
+        print({"error": e})
+        error = e.__class__.__name__
+         
+    return {
+        'statusCode': 200,
+        'body': json.dumps({"error": error})
+    }
+    
  
  
 # 処理できるリクエストか判定する
@@ -27,6 +42,14 @@ def is_not_available_backlog_request(body_dict):
         
     return False, None
 
+# メイン処理
+def proc(project, content):
+    
+    # 環境変数に未登録ユーザーではないかチェック
+    assignee_id = content['assignee']['id']
+    assignee_key = f'user_id{assignee_id}'
+    if not assignee_key in  os.environ:
+        raise "no registerd user_id(user_idXXXXX)"
 
 
 # mainの時実行する
