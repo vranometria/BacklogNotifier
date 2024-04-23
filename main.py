@@ -61,12 +61,23 @@ def proc(project, content):
     
     is_waiting = status_name == "処理待ち" or status_name == "指摘あり"
     is_new_rec = not 'Item' in data
+    is_change_state = not is_new_rec and not status_name == data['Item']['status']
+    
     text = create_message(assignee_key, ticket_key, project, content, status_name)
     
     if is_new_rec and is_waiting: # 新規で処理待ちか指摘ありは、レコード作ってslack
         put_item(table, ticket_key, status_name)
         notice_to_slack(text)
         return
+        
+    if not is_new_rec:
+        
+        # 処理中→処理待ち、処理中→指摘あり、処理待ち→指摘あり 指摘あり→処理待ち
+        # になった場合は更新してslack
+        if is_waiting and is_change_state: 
+            put_item(table, ticket_key, status_name)
+            notice_to_slack(text)
+            return
  
 # Slackに通知するメッセージを作成する
 def create_message(assignee_key, ticket_key, project, content, status_name):
