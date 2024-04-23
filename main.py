@@ -86,6 +86,18 @@ def notice_to_slack(text):
     response = requests.post(slack_url, param)
 
 
+
+def put_item(table, ticket_key, status_name):
+    table.put_item(
+        Item={
+            'ticket_id': ticket_key,
+            'status': status_name,
+            'created_at': int(time.time())
+        }
+    )
+
+
+
 # mainの時実行する
 if __name__ == "__main__":
     lambda_handler(None, None)
