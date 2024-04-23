@@ -78,6 +78,11 @@ def proc(project, content):
             put_item(table, ticket_key, status_name)
             notice_to_slack(text)
             return
+        
+        # 処理待ちor指摘→処理中になった場合は更新だけ
+        if not is_waiting:
+            put_item(table, ticket_key, status_name)
+            return
  
 # Slackに通知するメッセージを作成する
 def create_message(assignee_key, ticket_key, project, content, status_name):
