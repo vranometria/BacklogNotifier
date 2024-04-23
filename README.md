@@ -1,0 +1,2 @@
+# BacklogNotifier
+Backlogでタスクの状態が指定したものになった時、Slackに時通知する
